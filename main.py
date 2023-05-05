@@ -1,13 +1,20 @@
 import math
 import numpy as np
 import sys
+import random
 
 def main():
     print("\nGenetic algorithm applied to the traveling salesman problem.\n")
+
+    try:
+        graph = start(sys.argv[1]) #le arquivo, calcula dist. euclidiana e retorna matriz de distancias
+    except:
+        return
     
     try:
-        start(sys.argv[1]) #le o arquivo, calcula a distancia euclidiana e retorna a matriz de distancias/adjacencia
+        pop = generate_population(graph) #gera população 10 vezes maior que a cidade
     except:
+        print("Erro ao gerar a população.")
         return
 
 def start(fileName):
@@ -16,21 +23,21 @@ def start(fileName):
     except:
         print(f'File \'{fileName}\' not found.')
         
-    qtd_instances = int(instances.readline())
+    qtd_cities = int(instances.readline())
     cities_coords = {}
-    graph = np.zeros([qtd_instances, qtd_instances], dtype = float)
+    graph = np.zeros([qtd_cities, qtd_cities], dtype = float)
 
-    for x in range(qtd_instances):
+    for x in range(qtd_cities):
         linha = instances.readline().split()
         a = linha[0]
         b = linha[1]
         cities_coords[x] = a, b
 
-    for x in range(qtd_instances):
+    for x in range(qtd_cities):
         px1 = int(cities_coords[x][0])
         py1 = int(cities_coords[x][1])
         
-        for y in range(qtd_instances):
+        for y in range(qtd_cities):
             px2 = int(cities_coords[y][0])
             py2 = int(cities_coords[y][1])
             
@@ -41,13 +48,24 @@ def start(fileName):
                 graph[x][y] = math.sqrt(aux)
                 
     instances.close()
-    print(graph)
     return graph
+
+def generate_population(graph):
+    cities = []
+    sizepop = 10 * len(graph)
+    pop = []
+    
+    for x in range(len(graph)):
+        cities.append(x)
+
+    for x in range(sizepop):
+        pop.append(random.sample(cities, k = len(graph)))
+
+    return pop
 
 main()
 
-#inicializacao da populacao
 #avaliacao de cada individuo - fitness function
 #selecao de alguns individuos para reproducao
 #crossover e mutacao
-#
+#repetir ate ponto de parada

@@ -17,11 +17,17 @@ def main():
         print("Erro ao gerar a população.")
         return
 
+    #try:
+    desempenho = fitness(pop, graph) #devolve o coeficiente de desempenho de cada individuo 1/tempo da rota
+    #except:
+    #    print("Erro ao calcular a função de desempenho.")
+    #    return
+
 def start(fileName):
     try:
         instances = open(fileName)
     except:
-        print(f'File \'{fileName}\' not found.')
+        print(f'File not found.')
         
     qtd_cities = int(instances.readline())
     cities_coords = {}
@@ -60,8 +66,27 @@ def generate_population(graph):
 
     for x in range(sizepop):
         pop.append(random.sample(cities, k = len(graph)))
+        pop[x].append(pop[x][0])
 
     return pop
+
+def fitness(pop, graph):
+    performance = []
+
+    for x in range(len(pop)):
+        performance.append(1 / route_time(pop[x], graph))
+
+    print(pop[0], performance[0])
+    print(graph)
+
+def route_time(route, graph):
+    time = 0.0
+    
+    for x in range(len(route) - 2):
+        if x < len(route):
+            time += graph[route[x]][route[x+1]]
+
+    return time
 
 main()
 

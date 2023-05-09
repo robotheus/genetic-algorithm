@@ -124,6 +124,30 @@ def selectionCromo(pop, selected):
     
     return rep
 
-#crossover
+def crossover(father, mother):
+    child = []
+    herancaFather = []
+    herancaMother = []
+    
+    IndiceGeneFather = IndiceGeneMother = 0
+
+    while(IndiceGeneFather == IndiceGeneMother):
+        IndiceGeneFather = int(rd.random() * len(father))
+        IndiceGeneMother = int(rd.random() * len(father))
+
+    startGene = min(IndiceGeneFather, IndiceGeneMother)
+    endGene = max(IndiceGeneFather, IndiceGeneMother)
+
+    for x in range(startGene, endGene):
+        herancaFather.append(father[x])
+    
+    for y in mother:
+        if y not in herancaFather:
+            herancaMother.append(y)
+    
+    child = herancaFather + herancaMother
+
+    return child
+    
 #mutacao
 #repetir ate ponto de parada (numero maximo de geracoes)

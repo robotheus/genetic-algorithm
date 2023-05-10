@@ -76,7 +76,7 @@ def selection(pop, popFitness):
     
     #PARTE 3 - BUSCAR OS CROMOSSOMOS DOS INDICES SELECIONADOS
     selectedCromossomos = selectionCromo(pop, selectedIndex) #busca os cromossomos dos indices selecionados
-
+    
     return selectedCromossomos
 
 def rank_routes(pop, popFitness):
@@ -110,9 +110,13 @@ def selectionIndex(rankpop):
 def elite(rankpop, eliteSize):
     selectedElite = []
     
-    for i in range(0, eliteSize):
-        selectedElite.append(rankpop[i][0])
-    
+    if type(rankpop[0]) == tuple:
+        for i in range(0, eliteSize):
+            selectedElite.append(rankpop[i][0])
+    else:
+        for i in range(0, eliteSize):
+            selectedElite.append(rankpop[i])
+
     return selectedElite
 
 def selectionCromo(pop, selected):
@@ -148,6 +152,16 @@ def crossover(father, mother):
     child = herancaFather + herancaMother
 
     return child
+
+def reproduction(pop, sizeElite):
+    nextGeneration = []
+    popTam = len(pop) - sizeElite
+    individuosmisturados = rd.sample(pop, len(pop))
     
+    nextGeneration = elite(pop, sizeElite)
+    
+    
+
+
 #mutacao
 #repetir ate ponto de parada (numero maximo de geracoes)

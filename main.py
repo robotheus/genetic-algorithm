@@ -11,7 +11,7 @@ def main():
     
     pop = f.generate_population(graph) 
     popFitness = f.fitness(pop, graph) 
-    selectedIndividuos = f.selection(pop, popFitness)
-    f.reproduction(selectedIndividuos, int(len(selectedIndividuos)/10))
+    selectedCromossomos = f.selection(pop, popFitness)
+    f.crossover(selectedCromossomos[0], selectedCromossomos[1])
 
 main()

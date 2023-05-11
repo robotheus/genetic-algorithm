@@ -3,15 +3,13 @@ import functions as f
 
 def main():
     print("\nGenetic algorithm applied to the traveling salesman problem.\n")
-
+    
     try:
-        graph = f.start(sys.argv[1])
+        graphCities = f.start(sys.argv[1])
     except:
+        print(f'File "{sys.argv[1]}" not found.')
         return
     
-    pop = f.generate_population(graph) 
-    popFitness = f.fitness(pop, graph) 
-    selectedCromossomos = f.selection(pop, popFitness)
-    f.crossover(selectedCromossomos[0], selectedCromossomos[1])
+    f.geneticAlgorithm(graphCities)
 
 main()

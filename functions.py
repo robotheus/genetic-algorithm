@@ -4,11 +4,8 @@ import random as rd
 import pandas as pd
 
 def start(fileName):
-    try:
-        instances = open(fileName)
-    except:
-        print(f'File not found.')
-        
+    instances = open(fileName)
+            
     qtd_cities = int(instances.readline())
     cities_coords = {}
     graph = np.zeros([qtd_cities, qtd_cities], dtype = float)
@@ -65,6 +62,7 @@ def route_time(route, graph):
             time += graph[route[x]][route[x+1]]
     
     time += graph[route[0]][route[len(route) - 1]]
+    
     return time
 
 def selection(pop, popFitness):
@@ -76,7 +74,7 @@ def selection(pop, popFitness):
     
     #PARTE 3 - BUSCAR OS CROMOSSOMOS DOS INDICES SELECIONADOS
     selectedCromossomos = selectionCromo(pop, selectedIndex) #busca os cromossomos dos indices selecionados
-
+    
     return selectedCromossomos
 
 def rank_routes(pop, popFitness):
@@ -89,7 +87,7 @@ def rank_routes(pop, popFitness):
 
 def selectionIndex(rankpop):
     selectionResults = []
-    eliteSize = int(len(rankpop)/10)
+    eliteSize = int(len(rankpop) * 0.05)
 
     df = pd.DataFrame(np.array(rankpop), columns = ["Index","Fitness"])
     df['cum_sum'] = df.Fitness.cumsum()
@@ -110,9 +108,13 @@ def selectionIndex(rankpop):
 def elite(rankpop, eliteSize):
     selectedElite = []
     
-    for i in range(0, eliteSize):
-        selectedElite.append(rankpop[i][0])
-    
+    if type(rankpop[0]) == tuple:
+        for i in range(0, eliteSize):
+            selectedElite.append(rankpop[i][0])
+    else:
+        for i in range(0, eliteSize):
+            selectedElite.append(rankpop[i])
+
     return selectedElite
 
 def selectionCromo(pop, selected):
@@ -148,6 +150,64 @@ def crossover(father, mother):
     child = herancaFather + herancaMother
 
     return child
+
+def reproduction(pop, sizeElite):
+    nextGeneration = []
+    numDescendants = len(pop) - sizeElite
+    mixedIndividuals = rd.sample(pop, len(pop))
     
-#mutacao
-#repetir ate ponto de parada (numero maximo de geracoes)
+    nextGeneration = elite(pop, sizeElite)
+    
+    for i in range(0, numDescendants):
+        nextGeneration.append(crossover(mixedIndividuals[i], mixedIndividuals[len(pop) - i - 1]))
+    
+    return nextGeneration
+
+def mutate(individual, mutationRate):
+    for gene1 in range(len(individual)):
+        if(rd.random() < mutationRate):
+            gene2 = int(rd.random() * len(individual))
+
+            aux1 = individual[gene1]
+            aux2 = individual[gene2]
+
+            individual[gene1] = aux2
+            individual[gene2] = aux1
+
+    return individual
+
+def mutation(pop, mutationRate):
+    mutatePop = []
+
+    for i in range(len(pop)):
+        mutatePop.append(mutate(pop[i], mutationRate))
+    
+    return mutatePop
+
+def geneticAlgorithm(graphCities):
+    
+    pop = generate_population(graphCities)
+    popFitness = fitness(pop, graphCities) 
+    aux = rank_routes(pop, popFitness)
+    numGenerations = 100
+
+    print("Melhor distancia inicial: " + str(1/aux[0][1]))
+    print("Melhor rota inicial: " + str(pop[aux[0][0]]))
+
+    for i in range(0, numGenerations):
+        popFitness = fitness(pop, graphCities) 
+        selectedIndividuos = selection(pop, popFitness)
+        popCrossover = reproduction(selectedIndividuos, int(len(selectedIndividuos) * 0.1))
+        nextGeneration = mutation(popCrossover, 0.01)
+        pop = nextGeneration
+    
+    aux = rank_routes(pop, popFitness)
+    print("Melhor distancia final: " + str(1/aux[0][1]))
+    bestRoute = pop[aux[0][0]]
+    print("Melhor rota final: " + str(bestRoute))
+
+#PARAMETROS
+#   tamanho da população: 10*num_cidades
+#   taxa do elitismo: 10% da população
+#   taxa de mutação: 1%
+#   numero de geracoes: 100 gerações

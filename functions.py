@@ -2,6 +2,7 @@ import math
 import numpy as np
 import random as rd
 import pandas as pd
+import matplotlib.pyplot as plt
 
 def start(fileName):
     instances = open(fileName)
@@ -35,7 +36,7 @@ def start(fileName):
 
 def generate_population(graph):
     cities = []
-    sizepop = 10 * len(graph)
+    sizepop = 10 * len(graph) #tamanho da população
     pop = []
     
     for x in range(len(graph)):
@@ -87,7 +88,7 @@ def rank_routes(pop, popFitness):
 
 def selectionIndex(rankpop):
     selectionResults = []
-    eliteSize = int(len(rankpop) * 0.05)
+    eliteSize = int(len(rankpop) * 0.1) #tamanho da elite
 
     df = pd.DataFrame(np.array(rankpop), columns = ["Index","Fitness"])
     df['cum_sum'] = df.Fitness.cumsum()
@@ -185,11 +186,12 @@ def mutation(pop, mutationRate):
     return mutatePop
 
 def geneticAlgorithm(graphCities):
-    
     pop = generate_population(graphCities)
+    progress = []
     popFitness = fitness(pop, graphCities) 
     aux = rank_routes(pop, popFitness)
-    numGenerations = 100
+    progress.append(1 / aux[0][1])
+    numGenerations = 100 #numero de gerações
 
     print("Melhor distancia inicial: " + str(1/aux[0][1]))
     print("Melhor rota inicial: " + str(pop[aux[0][0]]))
@@ -197,14 +199,21 @@ def geneticAlgorithm(graphCities):
     for i in range(0, numGenerations):
         popFitness = fitness(pop, graphCities) 
         selectedIndividuos = selection(pop, popFitness)
-        popCrossover = reproduction(selectedIndividuos, int(len(selectedIndividuos) * 0.1))
-        nextGeneration = mutation(popCrossover, 0.01)
+        popCrossover = reproduction(selectedIndividuos, int(len(selectedIndividuos) * 0.1)) #tamanho da elite
+        nextGeneration = mutation(popCrossover, 0.01) #taxa de mutação
         pop = nextGeneration
-    
+        progress.append(1 / rank_routes(pop, popFitness)[0][1])
+
     aux = rank_routes(pop, popFitness)
     print("Melhor distancia final: " + str(1/aux[0][1]))
     bestRoute = pop[aux[0][0]]
     print("Melhor rota final: " + str(bestRoute))
+    
+    plt.plot(progress)
+    plt.title("GA applied to TSP", loc = 'center')
+    plt.ylabel('Distance')
+    plt.xlabel('Generations')
+    plt.show()
 
 #PARAMETROS
 #   tamanho da população: 10*num_cidades

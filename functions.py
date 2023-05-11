@@ -88,7 +88,7 @@ def rank_routes(pop, popFitness):
 
 def selectionIndex(rankpop):
     selectionResults = []
-    eliteSize = int(len(rankpop) * 0.1) #tamanho da elite
+    eliteSize = int(len(rankpop) * 0.05) #tamanho da elite
 
     df = pd.DataFrame(np.array(rankpop), columns = ["Index","Fitness"])
     df['cum_sum'] = df.Fitness.cumsum()
@@ -199,7 +199,7 @@ def geneticAlgorithm(graphCities):
     for i in range(0, numGenerations):
         popFitness = fitness(pop, graphCities) 
         selectedIndividuos = selection(pop, popFitness)
-        popCrossover = reproduction(selectedIndividuos, int(len(selectedIndividuos) * 0.1)) #tamanho da elite
+        popCrossover = reproduction(selectedIndividuos, int(len(selectedIndividuos) * 0.05)) #tamanho da elite
         nextGeneration = mutation(popCrossover, 0.01) #taxa de mutação
         pop = nextGeneration
         progress.append(1 / rank_routes(pop, popFitness)[0][1])
@@ -210,7 +210,9 @@ def geneticAlgorithm(graphCities):
     print("Melhor rota final: " + str(bestRoute))
     
     plt.plot(progress)
+    x = range(len(progress))
     plt.title("GA applied to TSP", loc = 'center')
+    plt.text(x[len(x) // 2], progress[0], 'minimum distance: {}'.format(progress[-1]), ha='center', va='center')
     plt.ylabel('Distance')
     plt.xlabel('Generations')
     plt.show()

@@ -10,26 +10,28 @@ def start(fileName):
     qtd_cities = int(instances.readline())
     cities_coords = {}
     graph = np.zeros([qtd_cities, qtd_cities], dtype = float)
-
+        
     for x in range(qtd_cities):
         linha = instances.readline().split()
+    
         a = linha[0]
         b = linha[1]
         cities_coords[x] = a, b
 
     for x in range(qtd_cities):
-        px1 = int(cities_coords[x][0])
-        py1 = int(cities_coords[x][1])
+        px1 = float(cities_coords[x][0])
+        py1 = float(cities_coords[x][1])
         
         for y in range(qtd_cities):
-            px2 = int(cities_coords[y][0])
-            py2 = int(cities_coords[y][1])
+            px2 = float(cities_coords[y][0])
+            py2 = float(cities_coords[y][1])
             
             if x == y:
                 graph[x][y] = 0
             else:
                 aux = pow((px2 - px1), 2) + pow((py2 - py1), 2)
                 graph[x][y] = math.sqrt(aux)
+                
                 
     instances.close()
     return graph
@@ -188,37 +190,47 @@ def mutation(pop, mutationRate):
 def geneticAlgorithm(graphCities):
     pop = generate_population(graphCities)
     progress = []
+    media = []
     popFitness = fitness(pop, graphCities) 
     aux = rank_routes(pop, popFitness)
     progress.append(1 / aux[0][1])
+    media.append(calculaMedia(aux))
     numGenerations = 100 #numero de gerações
 
     print("Melhor distancia inicial: " + str(1/aux[0][1]))
     print("Melhor rota inicial: " + str(pop[aux[0][0]]))
 
     for i in range(0, numGenerations):
-        popFitness = fitness(pop, graphCities) 
+        if i != 0:
+            popFitness = fitness(pop, graphCities) 
+        
         selectedIndividuos = selection(pop, popFitness)
-        popCrossover = reproduction(selectedIndividuos, int(len(selectedIndividuos) * 0.05)) #tamanho da elite
+        popCrossover = reproduction(selectedIndividuos, int(len(selectedIndividuos) * 0.05)) #tamanho do elitismo
         nextGeneration = mutation(popCrossover, 0.01) #taxa de mutação
         pop = nextGeneration
-        progress.append(1 / rank_routes(pop, popFitness)[0][1])
-
+        aux = rank_routes(pop, popFitness)
+        progress.append(1 / aux[0][1])
+        media.append(calculaMedia(aux))
+        
     aux = rank_routes(pop, popFitness)
     print("Melhor distancia final: " + str(1/aux[0][1]))
     bestRoute = pop[aux[0][0]]
     print("Melhor rota final: " + str(bestRoute))
     
-    plt.plot(progress)
+    plt.plot(media, marker = ',', markersize = 4, linestyle='--')
+    plt.plot(progress, marker = ',', markersize = 4, linestyle='--')
     x = range(len(progress))
+    plt.legend(['Fitness médio','Melhor Fitness'], fontsize=7)
     plt.title("GA applied to TSP", loc = 'center')
-    plt.text(x[len(x) // 2], progress[0], 'minimum distance: {}'.format(progress[-1]), ha='center', va='center')
     plt.ylabel('Distance')
     plt.xlabel('Generations')
     plt.show()
 
-#PARAMETROS
-#   tamanho da população: 10*num_cidades
-#   taxa do elitismo: 10% da população
-#   taxa de mutação: 1%
-#   numero de geracoes: 100 gerações
+def calculaMedia(rankroutes):
+    media = 0.0
+
+    for x in rankroutes:
+        media += 1/x[1]
+    
+    return media/int(len(rankroutes))
+
